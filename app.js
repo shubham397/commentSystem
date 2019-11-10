@@ -14,18 +14,18 @@ app.set('view engine', 'hbs');
 mongoose.connect('mongodb://localhost:27017/first');
 
 var connection = mysql.createConnection({
-    host     : 'remotemysql.com',
-    user     : 'SRspVZVnS1',
-    password : 'dVolwcMjYS',
-    database : 'SRspVZVnS1'
-  });
+    host: 'remotemysql.com',
+    user: 'SRspVZVnS1',
+    password: 'dVolwcMjYS',
+    database: 'SRspVZVnS1'
+});
 
-  connection.connect((err)=>{
+connection.connect((err) => {
     // console.log(err);
-    if(!err){
+    if (!err) {
         console.log("connected");
     }
-    else{
+    else {
         console.log("Connection Failed");
     }
 })
@@ -35,9 +35,9 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-app.use('/',userController.showLoginPage);
 app.use('/user', users);
 app.use('/comment',comment);
+app.use('/', userController.showLoginPage);
 
 
 app.listen(port, () => {

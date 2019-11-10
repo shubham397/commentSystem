@@ -116,9 +116,9 @@
             let password = document.getElementById("pswInput").value;
 
             var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function (res) {
-                if (res.readyState == 4 && res.status == 200) {
-                    console.log(res.responseText);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
                     let result = JSON.parse(this.responseText);
                     //console.log(typeof result.status);
                     if(result.status==="true"){
