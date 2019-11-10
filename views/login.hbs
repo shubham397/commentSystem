@@ -1,0 +1,141 @@
+<html>
+
+<head>
+    <title>home</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        /* Full-width input fields */
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            display: inline-block;
+            border: none;
+            background: #f1f1f1;
+        }
+
+        input:focus {
+            background-color: #ddd;
+            outline: none;
+        }
+
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+
+        /* Set a style for all buttons */
+        .signupbtn {
+            background-color: rgb(202, 2, 2);
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+        }
+
+        button:hover {
+            opacity: 0.7;
+        }
+
+        /* Add padding to container elements */
+        .container {
+            width: 400px;
+            padding: 16px;
+
+        }
+
+        .login {
+            background-color: rgb(6, 207, 6);
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+            font-size: 25px;
+        }
+
+        /* Clear floats */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        form {
+            text-align: -webkit-center;
+        }
+
+        /* Change styles for cancel button and signup button on extra small screens */
+        @media screen and (max-width: 300px) {
+            .signupbtn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <form>
+            <div class="container">
+                <h1>Login</h1>
+                <p>Please fill this form to comment.</p>
+                <hr>
+
+                <label for="email"><b>Email</b></label>
+                <input id="emailInput" type="email" placeholder="Enter Email" name="email" required>
+
+                <label for="psw"><b>Password</b></label>
+                <input id="pswInput" type="password" placeholder="Enter Password" name="psw" required>
+
+                <div class="clearfix">
+                    <button type="button" class="login" onclick="submitForm()">Login</button>
+                    <a href="/user/signup"><button type="button" class="signupbtn">Sign Up</button></a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function submitForm() {
+            event.preventDefault();
+            
+            let email = document.getElementById("emailInput").value;
+            let password = document.getElementById("pswInput").value;
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function (res) {
+                if (res.readyState == 4 && res.status == 200) {
+                    console.log(res.responseText);
+                    let result = JSON.parse(this.responseText);
+                    //console.log(typeof result.status);
+                    if(result.status==="true"){
+                        console.log(result);
+                        //redirect to comment_Page
+                        window.location.replace("/comment/"+result.userId);
+                    }
+                    else{
+                        //console.log("2"+result);
+                        alert("Email or Password incorrect!");
+                    }
+                }
+            };
+            xhttp.open("GET", "/user/login?email="+email+"&password="+password, true);
+            xhttp.send();
+        }
+    </script>
+</body>
+
+</html>
