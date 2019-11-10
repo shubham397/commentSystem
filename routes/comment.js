@@ -11,10 +11,4 @@ router.post('/reply',comment.postReply);
 
 router.get('/reply/:comment_id',comment.getreply);//not done
 
-
-//two more api
-
-// one - reply
-// two - edit
-
 module.exports = router;
