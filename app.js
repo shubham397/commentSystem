@@ -2,7 +2,9 @@ const port = 1234;
 const bodyParser = require('body-parser');
 const express = require("express");
 const mongoose = require('mongoose');
-const mysql = require('mysql');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const mysqlConnection = require('./connection');
 
 const users = require('./routes/user');
 const comment = require('./routes/comment');
@@ -13,22 +15,19 @@ app.set('view engine', 'hbs');
 
 mongoose.connect('mongodb://localhost:27017/first');
 
-var connection = mysql.createConnection({
-    host: 'remotemysql.com',
-    user: 'SRspVZVnS1',
-    password: 'dVolwcMjYS',
-    database: 'SRspVZVnS1'
-});
+// initialize cookie-parser to allow us access the cookies stored in the browser. 
+app.use(cookieParser());
 
-connection.connect((err) => {
-    // console.log(err);
-    if (!err) {
-        console.log("connected");
-    }
-    else {
-        console.log("Connection Failed");
-    }
-})
+// initialize express-session to allow us track the logged-in user across sessions.
+app.use(session({
+  key: 'user_sid',
+  secret: 'somerandonstuffs',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      expires: 6000
+  }
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({

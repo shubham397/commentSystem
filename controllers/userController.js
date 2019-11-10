@@ -38,11 +38,6 @@ exports.showLoginPage = (req, res) => {
     res.render("login.hbs");
 }
 
-exports.showCommentPage=(req,res)=>{
-    let user_id = req.params.userId;
-    res.render("comment.hbs",{userId:user_id});
-}
-
 /*
 Login
 */
@@ -54,13 +49,14 @@ exports.login = (req, res) => {
     // password=bcrypt.hashSync(password, 10);
     // console.log(email + "                      " + password);
 
-    User.find({ "email": `${email}`}).then(result => {
+    User.find({ "email": `${email}` }).then(result => {
         // console.log("result = " + result[0].password);
         if (result.length > 0) {
             if (bcrypt.compareSync(password, result[0].password)) {
+                res.cookie('user_sid',result[0]._id, { maxAge: 900000, httpOnly: true });
                 res.send({
                     status: "true",
-                    userId:result[0]._id,
+                    userId: result[0]._id,
                 })
             } else {
                 res.send({
@@ -80,4 +76,9 @@ exports.login = (req, res) => {
             status: "false",
         })
     })
+}
+
+exports.logout = async(req, res) => {
+    res.cookie('user_sid',"logout", { maxAge: 900000, httpOnly: true });
+    res.redirect('/');
 }
