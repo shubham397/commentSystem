@@ -118,6 +118,15 @@
             margin-left: 10px;
             font-size: 17px;
         }
+
+        .commentButtonDisable{
+            background-color: red;
+            color: white;
+            border: none;
+            margin-left: 10px;
+            font-size: 17px;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -159,17 +168,38 @@
                             commentsHTML += `<div class="commentContainer">
             <h4>${comment.userName}</h4>
             <div>
-                <p>${comment.text}</p> </div>
-            <div>
-                <div class="leftFloat">
+                <p>${comment.text}</p> </div> <div>`
+                if(comment.replyCount[0]["COUNT(id)"]==0){
+                    commentsHTML +=`<div class="leftFloat">
+                    <button class="commentButtonDisable" disabled>View Reply(${comment.replyCount[0]["COUNT(id)"]})</button>
+                </div>`
+                }
+                else{
+                    commentsHTML +=`<div class="leftFloat">
                     <button class="commentButton">View Reply(${comment.replyCount[0]["COUNT(id)"]})</button>
+                </div>`
+                }
+                if(comment.userName != '{{result.name}}'){
+                    console.log("got");
+                    commentsHTML +=`<div class="rightFloat">
+                    <button class="commentButton" onClick="replyComment(${comment.id},'${comment.userName}')">Reply</button>
+                    <button class="commentButtonDisable" disabled onClick="editComment(${comment.id},'${comment.text}')">Edit</button>
                 </div>
-                <div class="rightFloat">
-                    <button class="commentButton">Reply</button>
+            </div>
+        </div>`
+                }
+                else{
+                    console.log("noooooooooooogot");
+                    commentsHTML +=`<div class="rightFloat">
+                    <button class="commentButton" onClick="replyComment(${comment.id},'${comment.userName}')">Reply</button>
                     <button class="commentButton" onClick="editComment(${comment.id},'${comment.text}')">Edit</button>
                 </div>
             </div>
         </div>`
+                }
+            
+                
+                
                         });
                         document.getElementById("commentWrapper").innerHTML = commentsHTML;
                     }
@@ -197,7 +227,7 @@
                     let result = JSON.parse(this.responseText);
                     //console.log(typeof result.status);
                     if (result.status == true) {
-                        alert("Comment Successfully submitted");
+                        alert("Comment Successfully Submitted");
                         location.reload();
                     }
                     else {
@@ -210,7 +240,7 @@
             xhttp.send(JSON.stringify({ "text": text, "id": id }));
         }
 
-        function editComment(id,text){
+        function editComment(id, text) {
             event.preventDefault();
 
             let edit_text = prompt("Edit your Comment", text);
@@ -221,20 +251,47 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     //console.log(this.responseText);
-                    /*let result = JSON.parse(this.responseText);
+                    let result = JSON.parse(this.responseText);
                     //console.log(typeof result.status);
                     if (result.status == true) {
-                        alert("Comment Successfully submitted");
+                        alert("Comment Successfully Edited");
                         location.reload();
                     }
                     else {
                         alert("Something went wrong");
-                    }*/
+                    }
                 }
             };
             xhttp.open("PUT", "/comment/edit", true);
             xhttp.setRequestHeader("Content-type", "application/json");
             xhttp.send(JSON.stringify({ "text": edit_text, "id": id }));
+        }
+
+        function replyComment(comment_id, name) {
+            event.preventDefault();
+
+            let reply_text = prompt("Reply");
+
+            console.log(reply_text + "             " + comment_id + "            " + name);
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    //console.log(this.responseText);
+                    let result = JSON.parse(this.responseText);
+                    //console.log(typeof result.status);
+                    if (result.status == true) {
+                        alert("Reply Successfully Submitted");
+                        location.reload();
+                    }
+                    else {
+                        alert("Something went wrong");
+                    }
+                }
+            };
+            xhttp.open("POST", "/comment/reply", true);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send(JSON.stringify({ "text": reply_text, "id": comment_id, "name": name }));
         }
     </script>
 </body>
