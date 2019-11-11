@@ -10,5 +10,6 @@ router.put('/edit',comment.editComment);
 router.post('/reply',comment.postReply);
 
 router.get('/reply/:comment_id',comment.getreply);
+router.put('/reply/edit',comment.editReply);
 
 module.exports = router;

@@ -7,7 +7,7 @@ exports.showCommentPage = (req, res) => {
     console.log("cookies user_sid - " + req.cookies.user_sid);
     if (req.cookies.user_sid != "logout") {
         User.find({ _id: user_id }).then((result) => {
-            // console.log(result);
+            // console.log(result[0]);
             res.render("comment.hbs", { result: result[0] });
         }).catch((err) => {
             console.log(err);
@@ -50,7 +50,7 @@ exports.getAllComment = (req, res) => {
                     status: true,
                     result: rows
                 })
-            }, 1000);
+            }, 2000);
         }
         else {
             console.log(err);
@@ -143,6 +143,35 @@ exports.createComment = (req, res) => {
     let id = req.body.id;
 
     mysqlConnection.query("INSERT INTO comment (id, text, dateTime, isDeleted, userId) VALUES ( NULL,'" + text + "','2019-11-10' , '1', '" + id + "')", (err, rows) => {
+        if (!err) {
+            if (rows) {
+                res.send({
+                    status: true
+                });
+            }
+            else {
+                res.send({
+                    status: false
+                });
+            }
+        }
+        else {
+            console.log(err);
+            res.send({
+                status: false
+            });
+        }
+    });
+}
+
+//
+exports.editReply =(req,res)=>{
+    let text = req.body.text;
+    let id = req.body.id;
+
+    //console.log(text + "              " + id);
+
+    mysqlConnection.query("UPDATE reply SET text='" + text + "' WHERE id=" + id, (err, rows) => {
         if (!err) {
             if (rows) {
                 res.send({
