@@ -60,11 +60,22 @@ exports.getAllComment = (req, res) => {
 
 //ajax call
 exports.getreply = (req, res) => {
-    //get all reply of id from mysql
-    res.send({
-        status: true,
-        msg: "thanks you"
-    })
+
+    let comment_id = req.params.comment_id;
+
+    // console.log(comment_id);
+
+    mysqlConnection.query("SELECT * FROM reply WHERE comment_id="+comment_id,(err,rows,fields)=>{
+        if(!err){
+            res.send({
+                status:true,
+                result:rows,
+            })
+        }
+        else{
+            console.log(err);
+        }
+    });
 }
 
 //

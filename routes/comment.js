@@ -9,6 +9,6 @@ router.post('/create',comment.createComment);
 router.put('/edit',comment.editComment);
 router.post('/reply',comment.postReply);
 
-router.get('/reply/:comment_id',comment.getreply);//not done
+router.get('/reply/:comment_id',comment.getreply);
 
 module.exports = router;

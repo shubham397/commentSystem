@@ -98,6 +98,13 @@
             word-break: break-word;
         }
 
+        .innerCommentContainer {
+            width: 83%;
+            margin-left: 8%;
+            word-break: break-word;
+            display: inline-block;
+        }
+
         .commentWrapper {
             width: 60%;
             margin: auto;
@@ -119,7 +126,7 @@
             font-size: 17px;
         }
 
-        .commentButtonDisable{
+        .commentButtonDisable {
             background-color: red;
             color: white;
             border: none;
@@ -165,43 +172,41 @@
                     if (result.status) {
                         result.result.map(function (comment) {
                             //console.log(comment.replyCount[0]["COUNT(id)"]);
-                            commentsHTML += `<div class="commentContainer">
+                            commentsHTML += `<div id="commentContainer_${comment.id}" class="commentContainer">
             <h4>${comment.userName}</h4>
             <div>
                 <p>${comment.text}</p> </div> <div>`
-                if(comment.replyCount[0]["COUNT(id)"]==0){
-                    commentsHTML +=`<div class="leftFloat">
-                    <button class="commentButtonDisable" disabled>View Reply(${comment.replyCount[0]["COUNT(id)"]})</button>
+                            if (comment.replyCount[0]["COUNT(id)"] == 0) {
+                                commentsHTML += `<div class="leftFloat">
+                    <button class="commentButtonDisable" disabled>View Reply(0)</button>
                 </div>`
-                }
-                else{
-                    commentsHTML +=`<div class="leftFloat">
-                    <button class="commentButton">View Reply(${comment.replyCount[0]["COUNT(id)"]})</button>
+                            }
+                            else {
+                                commentsHTML += `<div class="leftFloat">
+                    <button class="commentButton" onClick="getAllReply(${comment.id},${comment.replyCount[0]["COUNT(id)"]})">View Reply(${comment.replyCount[0]["COUNT(id)"]})</button>
                 </div>`
-                }
-                if(comment.userName != '{{result.name}}'){
-                    console.log("got");
-                    commentsHTML +=`<div class="rightFloat">
+                            }
+                            if (comment.userName != '{{result.name}}') {
+                                commentsHTML += `<div class="rightFloat">
                     <button class="commentButton" onClick="replyComment(${comment.id},'${comment.userName}')">Reply</button>
                     <button class="commentButtonDisable" disabled onClick="editComment(${comment.id},'${comment.text}')">Edit</button>
                 </div>
             </div>
         </div>`
-                }
-                else{
-                    console.log("noooooooooooogot");
-                    commentsHTML +=`<div class="rightFloat">
+                            }
+                            else {
+                                commentsHTML += `<div class="rightFloat">
                     <button class="commentButton" onClick="replyComment(${comment.id},'${comment.userName}')">Reply</button>
                     <button class="commentButton" onClick="editComment(${comment.id},'${comment.text}')">Edit</button>
                 </div>
             </div>
         </div>`
-                }
-            
-                
-                
+                            }
+
+
+
                         });
-                        document.getElementById("commentWrapper").innerHTML = commentsHTML;
+                        document.getElementById("commentWrapper").innerHTML += commentsHTML;
                     }
                     else {
                         console.log("something went wrong");
@@ -292,6 +297,92 @@
             xhttp.open("POST", "/comment/reply", true);
             xhttp.setRequestHeader("Content-type", "application/json");
             xhttp.send(JSON.stringify({ "text": reply_text, "id": comment_id, "name": name }));
+        }
+
+        function editReply(id,text){
+            event.preventDefault();
+
+            let edit_text = prompt("Edit your Reply", text);
+
+            console.log(edit_text + "             " + id);
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    //console.log(this.responseText);
+                    let result = JSON.parse(this.responseText);
+                    //console.log(typeof result.status);
+                    if (result.status == true) {
+                        alert("Reply Successfully Edited");
+                        location.reload();
+                    }
+                    else {
+                        alert("Something went wrong");
+                    }
+                }
+            };
+            xhttp.open("PUT", "/comment/reply/edit", true);
+            xhttp.setRequestHeader("Content-type", "application/json");
+            xhttp.send(JSON.stringify({ "text": edit_text, "id": id }));
+        }
+
+        function getAllReply(comment_id, replyCount) {
+            event.preventDefault();
+
+            if (event.target.textContent.includes("View")) {
+                event.target.textContent = "close";
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        //console.log(this.responseText);
+                        let result = JSON.parse(this.responseText);
+                        //console.log(typeof result.status);
+                        let innerComment = "";
+                        if (result.status == true) {
+                            result.result.map(function (reply) {
+                                innerComment += `<div class="innerCommentContainer">
+                <h4>${reply.userName}</h4>
+                <div>
+                    <p>${reply.text}</p>
+                </div>
+                <div>`
+                    if (reply.userName != '{{result.name}}') {
+                                innerComment += `<div class="rightFloat">
+                    <button class="commentButton" onClick="replyComment(${comment_id},'{{result.name}}')">Reply</button>
+                    <button class="commentButtonDisable">Edit</button>
+                </div>
+            </div>
+        </div>`
+                            }
+                            else {
+                                innerComment += `<div class="rightFloat">
+                    <button class="commentButton" onClick="replyComment(${reply.id},'{{result.name}}')">Reply</button>
+                    <button class="commentButton" onClick="editReply(${reply.id},'${reply.text}')">Edit</button>
+                </div>
+            </div>
+        </div>`
+                            }
+                            })
+                            document.getElementById(`commentContainer_${comment_id}`).innerHTML += innerComment;
+                        }
+                        else {
+                            alert("Something went wrong");
+                        }
+                    }
+                };
+                xhttp.open("GET", "/comment/reply/" + comment_id, true);
+                xhttp.send();
+            }
+            else {
+                let commentLength = document.getElementById(`commentContainer_${comment_id}`).childNodes.length;
+                let comment = document.getElementById(`commentContainer_${comment_id}`);
+                for(let i=commentLength-1;i>=7;i--){
+                    comment.removeChild(comment.childNodes[i]);
+                }
+                event.target.textContent = "View Reply(" + replyCount + ")";
+            }
+
+
         }
     </script>
 </body>
