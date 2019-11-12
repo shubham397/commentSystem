@@ -22,35 +22,39 @@ exports.showCommentPage = (req, res) => {
 //ajax call
 exports.getAllComment = (req, res) => {
     //get all comment from mysql
-    mysqlConnection.query("SELECT * from comment ORDER BY id ASC", (err, rows, fields) => {
+    mysqlConnection.query("SELECT * from comment ORDER BY id ASC", async(err, rows, fields) => {
         if (!err) {
-            for (let i = 0; i < rows.length; i++) {
-                mysqlConnection.query("SELECT COUNT(id) FROM reply where comment_id=" + rows[i].id, (err, replyRows, fields) => {
-                    // console.log(replyRows['COUNT(id)']);
-                    User.findById(rows[i].userId).then(result => {
-                        // console.log(typeof result);
-                        rows[i].replyCount = replyRows;
-                        if (result == null) {
-                            rows[i].userName = rows[i].userId;
-                        }
-                        else {
-                            rows[i].userName = result.name;
-                        }
-                    }).catch(err => {
-                        console.log(err);
-                    })
-                });
-
-
-            }
-
-            setTimeout(() => {
-                // console.log(rows);
+            let promise = new Promise((resolve,reject)=>{
+                for (let i = 0; i < rows.length; i++) {
+                    mysqlConnection.query("SELECT COUNT(id) FROM reply where comment_id=" + rows[i].id, (err, replyRows, fields) => {
+                        // console.log("rows - "+rows[i]);
+                        User.findById(rows[i].userId).then(result => {
+                            // console.log(typeof result);
+                            rows[i].replyCount = replyRows;
+                            if (result == null) {
+                                rows[i].userName = rows[i].userId;
+                            }
+                            else {
+                                rows[i].userName = result.name;
+                            }
+                            if(i==(rows.length-1)){
+                                resolve ();
+                            }
+                        }).catch(err => {
+                            console.log(err);
+                        })
+                    });
+                    //console.log(i+"             "+(rows.length-1));
+                    
+                }
+            })
+            
+            await promise.then(()=>{
                 res.send({
                     status: true,
                     result: rows
                 })
-            }, 2000);
+            });
         }
         else {
             console.log(err);
@@ -65,14 +69,14 @@ exports.getreply = (req, res) => {
 
     // console.log(comment_id);
 
-    mysqlConnection.query("SELECT * FROM reply WHERE comment_id="+comment_id,(err,rows,fields)=>{
-        if(!err){
+    mysqlConnection.query("SELECT * FROM reply WHERE comment_id=" + comment_id, (err, rows, fields) => {
+        if (!err) {
             res.send({
-                status:true,
-                result:rows,
+                status: true,
+                result: rows,
             })
         }
-        else{
+        else {
             console.log(err);
         }
     });
@@ -165,7 +169,7 @@ exports.createComment = (req, res) => {
 }
 
 //
-exports.editReply =(req,res)=>{
+exports.editReply = (req, res) => {
     let text = req.body.text;
     let id = req.body.id;
 

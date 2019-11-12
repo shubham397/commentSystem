@@ -127,7 +127,7 @@
         }
 
         .commentButtonDisable {
-            background-color: red;
+            background-color: darkgrey;
             color: white;
             border: none;
             margin-left: 10px;
@@ -172,8 +172,11 @@
                     if (result.status) {
                         result.result.map(function (comment) {
                             //console.log(comment);
+                            //if(comment.userName == '{{result.name}}'){
+                            //    comment.userName = "You";
+                            //}
                             commentsHTML += `<div id="commentContainer_${comment.id}" class="commentContainer">
-            <h4>${comment.userName}</h4>
+            <h4>${comment.userName == '{{result.name}}'?'You':comment.userName}</h4>
             <div>
                 <p>${comment.text}</p> </div> <div>`
                             if (comment.replyCount[0]["COUNT(id)"] == 0) {
@@ -338,7 +341,7 @@
                         if (result.status == true) {
                             result.result.map(function (reply) {
                                 innerComment += `<div class="innerCommentContainer">
-                <h4>${reply.userName}</h4>
+                <h4>${reply.userName == '{{result.name}}'?'You':reply.userName}</h4>
                 <div>
                     <p>${reply.text}</p>
                 </div>
